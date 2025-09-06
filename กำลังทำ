@@ -113,6 +113,39 @@ Section:NewTextBox("JumpPower Value", "ใส่ค่าความสูง�
     end
 end)
 
+local Section = Tab:NewSection("NoClip")
+Section:NewToggle("NoClip", "เดินทะลุกำแพง", function(state)
+    local char = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+
+    if state then
+        -- เปิด NoClip
+        _G.NoClip = true
+        _G.NoClipConnection = game:GetService("RunService").Stepped:Connect(function()
+            if _G.NoClip and char then
+                for _,v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") and v.CanCollide == true then
+                        v.CanCollide = false
+                    end
+                end
+            end
+        end)
+        print("NoClip On")
+    else
+        -- ปิด NoClip
+        _G.NoClip = false
+        if _G.NoClipConnection then
+            _G.NoClipConnection:Disconnect()
+            _G.NoClipConnection = nil
+        end
+        -- รีเซ็ตให้ชนได้เหมือนเดิม
+        for _,v in pairs(char:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = true
+            end
+        end
+        print("NoClip Off")
+    end
+end)
 
 local Section = Tab:NewSection("Fly")
 local FlySpeed = 50
@@ -169,6 +202,8 @@ Section:NewToggle("Fly", "เปิด/ปิดโหมดบิน", function
         print("บิน: ปิด")
     end
 end)
+
+
 
 -- TextBox สำหรับปรับความเร็วบิน
 Section:NewTextBox("Fly Speed", "ใส่ค่าความเร็วในการบิน", function(txt)
