@@ -287,8 +287,8 @@ Section:NewToggle("Hitbox", "เปิด/ปิดการทำงานข�
         print("Hitbox: เปิด | ขนาด = "..HeadSize)
         Connection = RunService.RenderStepped:Connect(function()
             for _, plr in ipairs(Players:GetPlayers()) do
-                if plr ~= LocalPlayer 
-                and plr.Team == nil or LocalPlayer.Team == nil or plr.Team ~= LocalPlayer.Team -- เช็คทีม ไม่ทำถ้าเป็นทีมเดียวกัน
+                if plr ~= LocalPlayer -- ❌ ไม่ทำกับตัวเอง
+                and (not plr.Team or not LocalPlayer.Team or plr.Team ~= LocalPlayer.Team) -- ❌ ไม่ทำกับเพื่อนร่วมทีม
                 and plr.Character 
                 and plr.Character:FindFirstChild("HumanoidRootPart") then
 
@@ -306,7 +306,9 @@ Section:NewToggle("Hitbox", "เปิด/ปิดการทำงานข�
         if Connection then Connection:Disconnect() Connection = nil end
         -- รีเซ็ตขนาดกลับเป็นปกติ
         for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            if plr ~= LocalPlayer -- ❌ ไม่ยุ่งกับตัวเอง
+            and plr.Character 
+            and plr.Character:FindFirstChild("HumanoidRootPart") then
                 local hrp = plr.Character.HumanoidRootPart
                 hrp.Size = Vector3.new(2,2,1) -- ค่า default ของ HRP
                 hrp.Transparency = 1
