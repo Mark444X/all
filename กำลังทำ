@@ -7,18 +7,33 @@ local WalkSpeedValue = 16
 local WalkSpeedEnabled = false
 
 -- ฟังก์ชันอัปเดต WalkSpeed
+local player = game.Players.LocalPlayer
+
+-- ฟังก์ชันปรับ WalkSpeed
 local function applyWalkSpeed()
-    local player = game.Players.LocalPlayer
     local char = player.Character
     if char and char:FindFirstChild("Humanoid") then
         local humanoid = char:FindFirstChild("Humanoid")
         if WalkSpeedEnabled then
             humanoid.WalkSpeed = WalkSpeedValue
         else
-            humanoid.WalkSpeed = 16 -- ค่า default
+            humanoid.WalkSpeed = 16 -- ค่า default ของ Roblox (หรือแมพ)
         end
     end
 end
+
+-- เวลาตัวละครเกิดใหม่ จะเรียกใช้
+player.CharacterAdded:Connect(function()
+    task.wait(0.1) -- รอให้ Humanoid โหลดก่อน
+    applyWalkSpeed()
+end)
+
+-- ถ้ามีตัวละครอยู่แล้วตอนเริ่มเกม
+if player.Character then
+    task.wait(0.1)
+    applyWalkSpeed()
+end
+
 
 -- ฟังก์ชันเมื่อเกิดใหม่
 local function onCharacterAdded(char)
