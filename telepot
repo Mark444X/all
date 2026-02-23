@@ -1,0 +1,142 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- ===== SETTINGS =====
+local UndergroundOffset = Vector3.new(0,-15,0)
+-- ====================
+
+-- สร้าง GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FollowSystem"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- ปุ่มเปิด/ปิด GUI
+local ToggleGUIBtn = Instance.new("TextButton")
+ToggleGUIBtn.Size = UDim2.new(0,120,0,40)
+ToggleGUIBtn.Position = UDim2.new(0,20,0,20)
+ToggleGUIBtn.Text = "OPEN GUI"
+ToggleGUIBtn.BackgroundColor3 = Color3.fromRGB(0,170,255)
+ToggleGUIBtn.TextColor3 = Color3.new(1,1,1)
+ToggleGUIBtn.Parent = ScreenGui
+
+-- หน้าต่างหลัก
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0,260,0,350)
+MainFrame.Position = UDim2.new(0,20,0,70)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+MainFrame.Visible = false
+MainFrame.Parent = ScreenGui
+
+local UIListLayout = Instance.new("UIListLayout", MainFrame)
+UIListLayout.Padding = UDim.new(0,5)
+
+local SelectedPlayer = nil
+local Following = false
+local UndergroundMode = false
+
+-- เปิด/ปิด GUI
+ToggleGUIBtn.MouseButton1Click:Connect(function()
+	MainFrame.Visible = not MainFrame.Visible
+	
+	if MainFrame.Visible then
+		ToggleGUIBtn.Text = "CLOSE GUI"
+	else
+		ToggleGUIBtn.Text = "OPEN GUI"
+	end
+end)
+
+-- ฟังก์ชันสร้างปุ่มผู้เล่น
+local function AddPlayerButton(player)
+	if player == LocalPlayer then return end
+	
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(1,0,0,40)
+	btn.Text = player.Name
+	btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Parent = MainFrame
+	
+	btn.MouseButton1Click:Connect(function()
+		SelectedPlayer = player
+		
+		-- ไฮไลท์
+		for _,v in pairs(MainFrame:GetChildren()) do
+			if v:IsA("TextButton") and v ~= ToggleGUIBtn then
+				v.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			end
+		end
+		
+		btn.BackgroundColor3 = Color3.fromRGB(0,120,255)
+	end)
+end
+
+-- โหลดผู้เล่น
+for _,p in pairs(Players:GetPlayers()) do
+	AddPlayerButton(p)
+end
+
+Players.PlayerAdded:Connect(AddPlayerButton)
+
+-- ปุ่ม Follow
+local FollowBtn = Instance.new("TextButton")
+FollowBtn.Size = UDim2.new(1,0,0,40)
+FollowBtn.Text = "FOLLOW OFF"
+FollowBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
+FollowBtn.TextColor3 = Color3.new(1,1,1)
+FollowBtn.Parent = MainFrame
+
+FollowBtn.MouseButton1Click:Connect(function()
+	Following = not Following
+	
+	if Following then
+		FollowBtn.Text = "FOLLOW ON"
+		FollowBtn.BackgroundColor3 = Color3.fromRGB(0,170,0)
+	else
+		FollowBtn.Text = "FOLLOW OFF"
+		FollowBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
+	end
+end)
+
+-- ปุ่ม Underground
+local UndergroundBtn = Instance.new("TextButton")
+UndergroundBtn.Size = UDim2.new(1,0,0,40)
+UndergroundBtn.Text = "UNDERGROUND OFF"
+UndergroundBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
+UndergroundBtn.TextColor3 = Color3.new(1,1,1)
+UndergroundBtn.Parent = MainFrame
+
+UndergroundBtn.MouseButton1Click:Connect(function()
+	UndergroundMode = not UndergroundMode
+	
+	if UndergroundMode then
+		UndergroundBtn.Text = "UNDERGROUND ON"
+		UndergroundBtn.BackgroundColor3 = Color3.fromRGB(0,170,0)
+	else
+		UndergroundBtn.Text = "UNDERGROUND OFF"
+		UndergroundBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
+	end
+end)
+
+-- ระบบ Follow
+task.spawn(function()
+	while true do
+		task.wait(0.2)
+		
+		if Following and SelectedPlayer and SelectedPlayer.Character then
+			local targetHRP = SelectedPlayer.Character:FindFirstChild("HumanoidRootPart")
+			local myChar = LocalPlayer.Character
+			
+			if targetHRP and myChar and myChar:FindFirstChild("HumanoidRootPart") then
+				
+				local offset = Vector3.new(0,0,-3)
+				
+				if UndergroundMode then
+					offset = offset + UndergroundOffset
+				end
+				
+				myChar:MoveTo(targetHRP.Position + offset)
+			end
+		end
+	end
+end)
