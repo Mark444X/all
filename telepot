@@ -2,7 +2,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 -- ===== SETTINGS =====
-local UndergroundOffset = Vector3.new(0,-15,0)
+local UndergroundOffset = Vector3.new(0,0,0)
 -- ====================
 
 -- สร้าง GUI
@@ -121,7 +121,7 @@ end)
 -- ระบบ Follow
 task.spawn(function()
 	while true do
-		task.wait(0.2)
+		task.wait(0.00.1)
 		
 		if Following and SelectedPlayer and SelectedPlayer.Character then
 			local targetHRP = SelectedPlayer.Character:FindFirstChild("HumanoidRootPart")
